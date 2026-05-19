@@ -4,90 +4,83 @@ import {
   addDoc,
   collection,
   collectionData,
+  orderBy,
   query,
   where,
 } from '@angular/fire/firestore';
-import { Observable, defer, from, map, of } from 'rxjs';
+import { Observable, from, map, throwError, timeout } from 'rxjs';
 
-import { environment } from '../../environments/environment';
+import { firebaseConfigPreenchido } from '../../environments/environment';
 import { MensagemAniversario } from '../models/mensagem-aniversario.model';
 
-const STORAGE_KEY = 'cartinhas-para-a-gabi.mensagens';
-const COLLECTION_NAME = 'mensagensAniversario';
+const COLLECTION_NAME = 'mensagens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MensagensService {
-  private readonly firestore = inject(Firestore, { optional: true });
-  private readonly firestoreAtivo = environment.firebase.enabled && !!this.firestore;
+  private readonly firestore = inject(Firestore);
 
   salvarMensagem(
     mensagem: Omit<MensagemAniversario, 'id' | 'dataEnvio' | 'aprovada'>,
   ): Observable<void> {
+    if (!firebaseConfigPreenchido()) {
+      return throwError(
+        () =>
+          new Error(
+            'Firebase nao configurado. Preencha o firebaseConfig em src/environments/environment.ts.',
+          ),
+      );
+    }
+
     const novaMensagem: MensagemAniversario = {
       ...mensagem,
       titulo: mensagem.titulo?.trim() || undefined,
       dataEnvio: new Date(),
-      aprovada: false,
+      aprovada: true,
     };
 
-    if (this.firestoreAtivo && this.firestore) {
-      const mensagensRef = collection(this.firestore, COLLECTION_NAME);
-      return from(addDoc(mensagensRef, novaMensagem)).pipe(map(() => undefined));
-    }
-
-    return defer(() => {
-      const mensagens = this.lerMensagensLocais();
-      mensagens.unshift({
-        ...novaMensagem,
-        id: crypto.randomUUID(),
-        // No fallback local, deixamos aprovada como true para o mural do MVP ter dados visiveis.
-        aprovada: true,
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mensagens));
-
-      return of(undefined);
-    });
+    const mensagensRef = collection(this.firestore, COLLECTION_NAME);
+    return from(addDoc(mensagensRef, novaMensagem)).pipe(
+      timeout(15000),
+      map(() => undefined),
+    );
   }
 
   listarMensagensAprovadas(): Observable<MensagemAniversario[]> {
-    if (this.firestoreAtivo && this.firestore) {
-      const mensagensRef = collection(this.firestore, COLLECTION_NAME);
-      const consulta = query(mensagensRef, where('aprovada', '==', true));
-
-      return collectionData(consulta, { idField: 'id' }).pipe(
-        map((mensagens) => this.normalizarMensagens(mensagens as MensagemAniversario[])),
+    if (!firebaseConfigPreenchido()) {
+      return throwError(
+        () =>
+          new Error(
+            'Firebase nao configurado. Preencha o firebaseConfig em src/environments/environment.ts.',
+          ),
       );
     }
 
-    return of(this.lerMensagensLocais().filter((mensagem) => mensagem.aprovada));
+    const mensagensRef = collection(this.firestore, COLLECTION_NAME);
+    const consulta = query(mensagensRef, where('aprovada', '==', true));
+
+    return collectionData(consulta, { idField: 'id' }).pipe(
+      map((mensagens) => this.normalizarMensagens(mensagens as MensagemAniversario[])),
+    );
   }
 
   listarTodasMensagens(): Observable<MensagemAniversario[]> {
-    if (this.firestoreAtivo && this.firestore) {
-      const mensagensRef = collection(this.firestore, COLLECTION_NAME);
-
-      return collectionData(mensagensRef, { idField: 'id' }).pipe(
-        map((mensagens) => this.normalizarMensagens(mensagens as MensagemAniversario[])),
+    if (!firebaseConfigPreenchido()) {
+      return throwError(
+        () =>
+          new Error(
+            'Firebase nao configurado. Preencha o firebaseConfig em src/environments/environment.ts.',
+          ),
       );
     }
 
-    return of(this.lerMensagensLocais());
-  }
+    const mensagensRef = collection(this.firestore, COLLECTION_NAME);
+    const consulta = query(mensagensRef, orderBy('dataEnvio', 'desc'));
 
-  private lerMensagensLocais(): MensagemAniversario[] {
-    const mensagensSalvas = localStorage.getItem(STORAGE_KEY);
-
-    if (!mensagensSalvas) {
-      return [];
-    }
-
-    try {
-      return this.normalizarMensagens(JSON.parse(mensagensSalvas));
-    } catch {
-      return [];
-    }
+    return collectionData(consulta, { idField: 'id' }).pipe(
+      map((mensagens) => this.normalizarMensagens(mensagens as MensagemAniversario[])),
+    );
   }
 
   private normalizarMensagens(mensagens: MensagemAniversario[]): MensagemAniversario[] {

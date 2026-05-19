@@ -30,7 +30,10 @@ export class MuralCartinhasComponent {
     .pipe(
       map((mensagens) => ({ mensagens, carregando: false, erro: false })),
       startWith({ mensagens: [], carregando: true, erro: false }),
-      catchError(() => of({ mensagens: [], carregando: false, erro: true })),
+      catchError((error) => {
+        console.error('Erro ao carregar mural:', error);
+        return of({ mensagens: [], carregando: false, erro: true });
+      }),
     );
 
   relacaoLabel(relacao: RelacaoMensagem): string {

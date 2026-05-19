@@ -53,7 +53,8 @@ export class EnviarCartinhaComponent {
       .pipe(finalize(() => (this.carregando = false)))
       .subscribe({
         next: () => this.router.navigateByUrl('/obrigada'),
-        error: () => {
+        error: (error) => {
+          console.error('Erro ao salvar cartinha:', error);
           this.erro =
             'Nao consegui guardar sua cartinha agora. Tente novamente em alguns instantes.';
         },
