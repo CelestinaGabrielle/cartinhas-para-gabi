@@ -1,0 +1,61 @@
+<section class="page form-page">
+  <div class="form-page__intro">
+    <p class="eyebrow">Sua mensagem</p>
+    <h1 class="title">Escreva uma cartinha para a Gabi.</h1>
+    <p class="lead">
+      Pode ser lembranca, desejo, piada interna ou um carinho simples. O que
+      importa e guardar um pedacinho da sua presenca.
+    </p>
+  </div>
+
+  <form class="paper-card letter-form" [formGroup]="form" (ngSubmit)="enviar()">
+    <div class="form-field">
+      <label for="nome">Seu nome</label>
+      <input id="nome" type="text" formControlName="nome" autocomplete="name" />
+      @if (campoInvalido('nome')) {
+        <span class="field-error">Informe seu nome.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="titulo">Titulo da cartinha <span>(opcional)</span></label>
+      <input id="titulo" type="text" formControlName="titulo" />
+    </div>
+
+    <div class="form-field">
+      <label for="relacao">Relacao com a Gabi</label>
+      <select id="relacao" formControlName="relacao">
+        @for (relacao of relacoes; track relacao.value) {
+          <option [value]="relacao.value">{{ relacao.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="mensagem">Mensagem</label>
+      <textarea id="mensagem" formControlName="mensagem"></textarea>
+      @if (campoInvalido('mensagem')) {
+        <span class="field-error">Escreva uma mensagem com pelo menos 12 caracteres.</span>
+      }
+    </div>
+
+    <label class="memory-check">
+      <input type="checkbox" formControlName="aceite" />
+      <span>Confirmo que esta mensagem sera guardada como lembranca.</span>
+    </label>
+    @if (campoInvalido('aceite')) {
+      <span class="field-error">Confirme para enviar sua cartinha.</span>
+    }
+
+    @if (erro) {
+      <p class="status-error">{{ erro }}</p>
+    }
+
+    <div class="letter-form__actions">
+      <button class="button" type="submit" [disabled]="carregando">
+        {{ carregando ? 'Guardando...' : 'Enviar cartinha' }}
+      </button>
+      <a class="button button--ghost" routerLink="/inicio">Voltar</a>
+    </div>
+  </form>
+</section>

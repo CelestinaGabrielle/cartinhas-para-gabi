@@ -1,0 +1,59 @@
+.hero {
+  min-height: calc(100vh - 10rem);
+  display: grid;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero__content {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.hero__actions {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.hero__letter {
+  padding: 2rem;
+  transform: rotate(-1.4deg);
+
+  p {
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.65;
+  }
+
+  strong {
+    display: block;
+    margin-top: 1.5rem;
+    color: var(--color-rose-dark);
+    font-family: var(--font-display);
+  }
+}
+
+.stamp {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: grid;
+  place-items: center;
+  margin-left: auto;
+  border: 2px dashed rgba(185, 111, 118, 0.45);
+  border-radius: 50%;
+  color: var(--color-rose-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+@media (min-width: 760px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.72fr);
+    gap: 3rem;
+  }
+
+  .hero__actions {
+    grid-template-columns: repeat(2, max-content);
+  }
+}

@@ -1,0 +1,28 @@
+.thanks {
+  min-height: calc(100vh - 11rem);
+  display: grid;
+  place-items: center;
+}
+
+.thanks__card {
+  max-width: 44rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.thanks__actions {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 620px) {
+  .thanks__card {
+    padding: 2.5rem;
+  }
+
+  .thanks__actions {
+    grid-template-columns: max-content max-content;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,24 @@
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/inicio" aria-label="Ir para o inicio">
+      <span class="brand__mark">G</span>
+      <span>
+        <strong>Cartinhas para a Gabi</strong>
+        <small>02/06/2026</small>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Navegacao principal">
+      <a routerLink="/enviar" routerLinkActive="is-active">Enviar</a>
+      <a routerLink="/cartinhas" routerLinkActive="is-active">Mural</a>
+    </nav>
+  </header>
+
+  <main>
+    <router-outlet />
+  </main>
+
+  <footer class="footer">
+    <span>Feito para guardar carinho em forma de memoria.</span>
+  </footer>
+</div>

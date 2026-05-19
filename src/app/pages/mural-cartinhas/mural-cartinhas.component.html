@@ -1,0 +1,39 @@
+<section class="page mural">
+  <div class="mural__header">
+    <div>
+      <p class="eyebrow">Mural de carinho</p>
+      <h1 class="title">Cartinhas aprovadas para a Gabi.</h1>
+    </div>
+    <a class="button" routerLink="/enviar">Deixar uma cartinha</a>
+  </div>
+
+  @if (state$ | async; as state) {
+    @if (state.carregando) {
+      <div class="paper-card empty-state">Carregando cartinhas...</div>
+    } @else if (state.erro) {
+      <div class="paper-card empty-state">
+        Nao consegui carregar o mural agora. Tente novamente em instantes.
+      </div>
+    } @else if (!state.mensagens.length) {
+      <div class="paper-card empty-state">
+        Ainda nao ha cartinhas aprovadas por aqui. A primeira pode ser a sua.
+      </div>
+    } @else {
+      <div class="letters-grid">
+        @for (cartinha of state.mensagens; track cartinha.id || cartinha.dataEnvio) {
+          <article class="paper-card letter-card">
+            <div class="letter-card__meta">
+              <span>{{ relacaoLabel(cartinha.relacao) }}</span>
+              <time [dateTime]="cartinha.dataEnvio.toISOString()">
+                {{ cartinha.dataEnvio | date: 'dd/MM/yyyy' }}
+              </time>
+            </div>
+            <h2>{{ cartinha.titulo || 'Uma cartinha especial' }}</h2>
+            <p>{{ cartinha.mensagem }}</p>
+            <strong>{{ cartinha.nome }}</strong>
+          </article>
+        }
+      </div>
+    }
+  }
+</section>
