@@ -37,7 +37,8 @@ export class MensagensService {
       ...mensagem,
       titulo: mensagem.titulo?.trim() || undefined,
       dataEnvio: new Date(),
-      aprovada: true,
+      // Novas cartinhas entram pendentes para moderacao manual no Firebase Console.
+      aprovada: false,
     };
 
     const mensagensRef = collection(this.firestore, COLLECTION_NAME);
