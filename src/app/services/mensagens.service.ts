@@ -11,9 +11,16 @@ import {
 import { Observable, from, map, throwError, timeout } from 'rxjs';
 
 import { firebaseConfigPreenchido } from '../../environments/environment';
-import { MensagemAniversario } from '../models/mensagem-aniversario.model';
+import {
+  MensagemAniversario,
+  StatusModeracao,
+} from '../models/mensagem-aniversario.model';
 
 const COLLECTION_NAME = 'mensagens';
+const STATUS_APROVACAO: Record<StatusModeracao, boolean> = {
+  pending: false,
+  approved: true,
+};
 
 @Injectable({
   providedIn: 'root',
@@ -37,8 +44,7 @@ export class MensagensService {
       ...mensagem,
       titulo: mensagem.titulo?.trim() || undefined,
       dataEnvio: new Date(),
-      // Novas cartinhas entram pendentes para moderacao manual no Firebase Console.
-      aprovada: false,
+      aprovada: STATUS_APROVACAO.pending,
     };
 
     const mensagensRef = collection(this.firestore, COLLECTION_NAME);
@@ -59,7 +65,10 @@ export class MensagensService {
     }
 
     const mensagensRef = collection(this.firestore, COLLECTION_NAME);
-    const consulta = query(mensagensRef, where('aprovada', '==', true));
+    const consulta = query(
+      mensagensRef,
+      where('aprovada', '==', STATUS_APROVACAO.approved),
+    );
 
     return collectionData(consulta, { idField: 'id' }).pipe(
       map((mensagens) => this.normalizarMensagens(mensagens as MensagemAniversario[])),

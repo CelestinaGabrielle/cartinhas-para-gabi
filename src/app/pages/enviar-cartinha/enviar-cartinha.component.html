@@ -8,7 +8,12 @@
     </p>
   </div>
 
-  <form class="paper-card letter-form" [formGroup]="form" (ngSubmit)="enviar()">
+  <form
+    class="paper-card letter-form"
+    [formGroup]="form"
+    [attr.aria-busy]="carregando"
+    (ngSubmit)="enviar()"
+  >
     <div class="form-field">
       <label for="nome">Seu nome</label>
       <input id="nome" type="text" formControlName="nome" autocomplete="name" />
@@ -19,7 +24,17 @@
 
     <div class="form-field">
       <label for="titulo">Titulo da cartinha <span>(opcional)</span></label>
-      <input id="titulo" type="text" formControlName="titulo" />
+      <input
+        id="titulo"
+        type="text"
+        formControlName="titulo"
+        [attr.maxlength]="tamanhoMaximoTitulo"
+      />
+      @if (campoInvalido('titulo')) {
+        <span class="field-error">
+          Use no maximo {{ tamanhoMaximoTitulo }} caracteres no titulo.
+        </span>
+      }
     </div>
 
     <div class="form-field">
@@ -53,7 +68,7 @@
 
     <div class="letter-form__actions">
       <button class="button" type="submit" [disabled]="carregando">
-        {{ carregando ? 'Guardando...' : 'Enviar cartinha' }}
+        {{ carregando ? 'Enviando...' : 'Enviar cartinha' }}
       </button>
       <a class="button button--ghost" routerLink="/inicio">Voltar</a>
     </div>

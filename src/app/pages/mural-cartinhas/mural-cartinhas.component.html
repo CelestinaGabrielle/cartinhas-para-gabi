@@ -20,16 +20,41 @@
       </div>
     } @else {
       <div class="letters-grid">
-        @for (cartinha of state.mensagens; track cartinha.id || cartinha.dataEnvio) {
-          <article class="paper-card letter-card">
+        @for (cartinha of state.mensagens; track cartinhaKey(cartinha)) {
+          <article
+            class="paper-card letter-card"
+            [class.letter-card--expanded]="cartinhaExpandida(cartinha)"
+          >
             <div class="letter-card__meta">
               <span>{{ relacaoLabel(cartinha.relacao) }}</span>
               <time [dateTime]="cartinha.dataEnvio.toISOString()">
-                {{ cartinha.dataEnvio | date: 'dd/MM/yyyy' }}
+                Enviada em {{ cartinha.dataEnvio | date: 'dd/MM/yyyy' }}
               </time>
             </div>
-            <h2>{{ cartinha.titulo || 'Uma cartinha especial' }}</h2>
-            <p>{{ cartinha.mensagem }}</p>
+
+            @if (cartinha.titulo) {
+              <h2>{{ cartinha.titulo }}</h2>
+            }
+
+            <p
+              class="letter-card__message"
+              [class.letter-card__message--clamped]="
+                mensagemLonga(cartinha.mensagem) && !cartinhaExpandida(cartinha)
+              "
+            >
+              {{ cartinha.mensagem }}
+            </p>
+
+            @if (mensagemLonga(cartinha.mensagem)) {
+              <button
+                class="letter-card__read-more"
+                type="button"
+                (click)="alternarCartinha(cartinha)"
+              >
+                {{ cartinhaExpandida(cartinha) ? 'Mostrar menos' : 'Ler carta completa' }}
+              </button>
+            }
+
             <strong>{{ cartinha.nome }}</strong>
           </article>
         }

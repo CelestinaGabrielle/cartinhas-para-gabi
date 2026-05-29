@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
 
 import { RelacaoMensagem } from '../../models/mensagem-aniversario.model';
 import { MensagensService } from '../../services/mensagens.service';
@@ -18,6 +17,7 @@ export class EnviarCartinhaComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly mensagensService = inject(MensagensService);
   private readonly router = inject(Router);
+  readonly tamanhoMaximoTitulo = 60;
 
   readonly relacoes: { label: string; value: RelacaoMensagem }[] = [
     { label: 'Familia', value: 'familia' },
@@ -28,7 +28,7 @@ export class EnviarCartinhaComponent {
 
   readonly form = this.formBuilder.nonNullable.group({
     nome: ['', [Validators.required, Validators.minLength(2)]],
-    titulo: [''],
+    titulo: ['', Validators.maxLength(this.tamanhoMaximoTitulo)],
     relacao: ['amizade' as RelacaoMensagem, Validators.required],
     mensagem: ['', [Validators.required, Validators.minLength(12)]],
     aceite: [false, Validators.requiredTrue],
@@ -38,23 +38,36 @@ export class EnviarCartinhaComponent {
   erro = '';
 
   enviar(): void {
+    if (this.carregando) {
+      return;
+    }
+
     this.erro = '';
     this.form.markAllAsTouched();
 
-    if (this.form.invalid || this.carregando) {
+    if (this.form.invalid) {
       return;
     }
 
     this.carregando = true;
+    this.form.disable({ emitEvent: false });
+
     const { aceite, ...mensagem } = this.form.getRawValue();
+    const mensagemLimpa = {
+      ...mensagem,
+      nome: mensagem.nome.trim(),
+      titulo: mensagem.titulo.trim(),
+      mensagem: mensagem.mensagem.trim(),
+    };
 
     this.mensagensService
-      .salvarMensagem(mensagem)
-      .pipe(finalize(() => (this.carregando = false)))
+      .salvarMensagem(mensagemLimpa)
       .subscribe({
         next: () => this.router.navigateByUrl('/obrigada'),
         error: (error) => {
           console.error('Erro ao salvar cartinha:', error);
+          this.carregando = false;
+          this.form.enable({ emitEvent: false });
           this.erro =
             'Nao consegui guardar sua cartinha agora. Tente novamente em alguns instantes.';
         },
