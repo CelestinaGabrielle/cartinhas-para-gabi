@@ -74,7 +74,7 @@
   width: max-content;
   max-width: 100%;
   border: 0;
-  border-bottom: 1px solid rgba(151, 89, 95, 0.35);
+  border-bottom: 1px solid rgba(var(--color-accent-dark-rgb), 0.35);
   background: transparent;
   color: var(--color-rose-dark);
   font-weight: 800;
